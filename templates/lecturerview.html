@@ -1,13 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>studentview</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Lecturer View Page</h1>
-  <h4>Session Has Started</h4>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Attendance System</a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#">See Analytics</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://attendancemanagementsystemai.sansprogram.repl.co">Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Student Attendance</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Student Surname</th>
+                    <th>Student Number</th>
+                    <th>Email</th>
+                    <th>Classes Attended</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                   {% for user in users %}
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.surname }}</td>
+                        <td>{{ user.studentnumber }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>5</td> 
+                        <td>
+                          <button class="btn btn-success btn-attend" data-action="attend">Attend</button>
+                          <button class="btn btn-danger btn-not-attend" data-action="not-attend">Didn't Attend</button>
+                        </td>
+                        
+                   {% endfor %}       
+                    </tr>
+                    
+                   
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-primary btn-submit">Submit</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $(".btn-attend").click(function () {
+                var $attendButton = $(this);
+                var $notAttendButton = $attendButton.siblings(".btn-not-attend");
+
+                $attendButton.prop("disabled", true);
+                $notAttendButton.prop("disabled", true);
+
+                $attendButton.addClass("btn-success");
+                $notAttendButton.removeClass("btn-danger");
+            });
+
+            $(".btn-not-attend").click(function () {
+                var $notAttendButton = $(this);
+                var $attendButton = $notAttendButton.siblings(".btn-attend");
+
+                $notAttendButton.prop("disabled", true);
+                $attendButton.prop("disabled", true);
+
+                $notAttendButton.addClass("btn-danger");
+                $attendButton.removeClass("btn-success");
+            });
+        });
+    </script>
 </body>
 </html>
