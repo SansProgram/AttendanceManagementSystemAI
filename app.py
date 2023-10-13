@@ -33,8 +33,15 @@ class User(db.Model, UserMixin):
   name = db.Column(db.String(80), nullable=False)
   surname = db.Column(db.String(80), nullable=False)
   password = db.Column(db.String(80), nullable=False)
+  role = db.Column(db.String(1), nullable=False)
+  child = db.relationship('Attendance', backref='parent', uselist=False)
   
+class Attendance(db.Model, UserMixin):
+  id = db.Column(db.Integer, primary_key=True)
+  attendance = db.Column(db.Integer)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
   
+
 
 # Database Content
 class RegisterForm(FlaskForm):
@@ -43,6 +50,7 @@ class RegisterForm(FlaskForm):
   name = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Name"})
   surname = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Surname"})
   password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
+  attendance = StringField(validators=[InputRequired(), Length(min=1, max=20)], render_kw={"placeholder": "Attendance"})
   submit = SubmitField("Register")
 
   def validate_email(self, email):
@@ -87,27 +95,46 @@ def signup_page():
   if form.validate_on_submit():
     hashed_password = bcrypt.generate_password_hash(form.password.data)
     new_user = User(email=form.email.data, studentnumber=form.studentnumber.data, name=form.name.data, surname=form.surname.data, password=hashed_password)
+    
+    new_user.role = 'S' if len(form.email.data)==23 else 'T'
+    
+    new_attendance = Attendance(attendance=form.attendance.data)
+    new_user.child = new_attendance
     db.session.add(new_user)
     db.session.commit()
     flash('The account has been created!')
     return redirect("https://attendancemanagementsystemai.sansprogram.repl.co/")
-  
   return render_template('signup.html', form=form)
 
-# Main Routes
 
+
+# Main Routes
 @app.route('/studentview', methods=['GET', 'POST'])
 @login_required
 def studentview_page():
-    # get the current user from Flask-Login
-    user = current_user
-    return render_template('studentview.html', user=user)
+  user = current_user
+  return render_template('studentview.html', user=user)
 
 @app.route('/lecturerview', methods=['GET', 'POST'])
 @login_required
 def lecturerview_page():
-  users=User.query.all()
-  return render_template('lecturerview.html', users=users)
+  if current_user.role == 'T':
+    # Only teachers can access this page
+    students = User.query.filter_by(role='S').all()
+
+    # Search functionality
+    search_query = request.args.get('search', '')
+    if search_query:
+      students = [student for student in students if search_query in student.studentnumber]
+
+    return render_template('lecturerview.html', students=students, search_query=search_query)
+  else:
+    # Redirect non-teachers to a different page or show an error message
+    return redirect('/error_page')
+
+@app.route('/error_page')
+def error_page():
+  return render_template('error_page.html')
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -119,6 +146,15 @@ def profile():
 def module_page():
   return render_template('module_page.html')
 
+
+# This must get the value from the database attendance.db
+@app.route('/studanalytics', methods=['GET', 'POST'])
+@login_required
+def studanalytics():
+    user = current_user
+    current_user_attendance = current_user.child
+    percentage = current_user_attendance.attendance if current_user_attendance else 'N/A'
+    return render_template('studanalytics.html', percentage=percentage, user=user)
 
 # logout user
 @app.route('/logout', methods=['GET', 'POST'])

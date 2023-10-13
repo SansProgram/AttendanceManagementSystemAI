@@ -7,6 +7,12 @@
     <title>Module Page</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+      body {
+        background-image: url('https://attendancemanagementsystemai.sansprogram.repl.co/static/background.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: 100% 100%;
+      }
         .profile-img {
             width: 100px;
             height: 100px;
@@ -34,7 +40,24 @@
             text-decoration: none;
             color: #333;
         }
-    </style>
+
+        .progress-container {
+          width: 300px;
+          border: 1px solid #ccc;
+        }
+
+        .progress-bar {
+          height: 30px;
+          background-color: #4CAF50;  /* Green color for filled part */
+          text-align: center;
+          line-height: 30px;
+          color: #333;
+        }
+
+        .progress-text {
+          font-size: 14px;
+        }
+     </style>
 </head>
 <body>
     <div class="bg-primary p-4">
@@ -47,7 +70,10 @@
                 </div>
                 <div class="col-md-10">
                     <p class="text-white">
-                        <span class="font-weight-bold" style="font-size: 24px;">Welcome Student</span>
+                        <span class="font-weight-bold" style="font-size: 24px;">
+                            <!--This is to display the name of the user-->
+                        Welcome {{ user.name }}, {{ user.studentnumber }}
+                        </span>
                     </p>
                 </div>
             </div>
@@ -61,10 +87,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="https://attendancemanagementsystemai.sansprogram.repl.co/studentview">Home</a>
+                        <a class="nav-link" href="/studentview">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="https://attendancemanagementsystemai.sansprogram.repl.co/profile">Profile</a>
+                        <a class="nav-link" href="/profile">Profile</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="https://attendancemanagementsystemai.sansprogram.repl.co">Logout</a>
@@ -73,39 +99,17 @@
             </div>
         </div>
     </nav>
-    <div class="container mt-3">
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <div>
-                    <h1 class="module-title">Module 1</h1>
-                </div>
-            </div>
-        </div>
         <div class="container mt-3">
-            <div class="row">
-                <div class="col-lg-6">
-                    <h4 class="module-title">Timetable</h4>
-                    <ul class="list-group course-list">
-                        <li class="list-group-item">
-                            <div class="d-flex align-items-center">
-                                <img src="https://static.vecteezy.com/system/resources/previews/017/207/442/original/class-timetable-icon-from-education-collection-simple-line-class-timetable-icon-for-templates-web-design-and-infographics-vector.jpg" alt="Module 1">
-                                <a href="/module_page">Download Timetable</a>
-                            </div>
-                        </li>
-                    </ul>
+          <div class="row">
+            <div class="col-lg-6">
+              <h4>Total Attendance %</h4>
+              <div class="progress-container">
+                <div class="progress-bar" style="width: {{ percentage }}%;">
+                  <div class="progress-text">{{ percentage }}%</div>
                 </div>
-                <div class="col-lg-6">
-                    <h4 class="module-title">Analytics</h4>
-                    <ul class="list-group course-list">
-                        <li class="list-group-item">
-                            <div class="d-flex align-items-center">
-                                <img src="https://cdn-icons-png.flaticon.com/512/757/757512.png" alt="Module 2">
-                                <a href="/module_page">Look at Analytics</a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+              </div>
             </div>
+          </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
