@@ -1,69 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">   
     <style>
-        
-        body {
-          background-image: url('https://attendancemanagementsystemai.sansprogram.repl.co/static/background.jpg');
-          background-repeat: no-repeat;
-          background-attachment: fixed;
-          background-size: 100% 100%;
-        }
-        .navbar {
-            background-color: #000;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-label {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .form-control {
-            font-size: 16px;
-            padding: 10px;
-        }
-        .container {
-            text-align: center; 
-            padding-top: 50px;
-        }
+      body {
+        background-image: url('https://attendancemanagementsystemai.sansprogram.repl.co/static/background.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: 100% 100%;
+      }
+      .navbar {
+        background-color: #000;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-label {
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .form-control {
+        font-size: 16px;
+        padding: 10px;
+      }
+      .container {
+        text-align: center; 
+        padding-top: 50px;
+      }
     </style>
-</head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
         <a class="navbar-brand" href="#">Student Management System</a>
-    </div>
-</nav>
+      </div>
+    </nav>
     <div class="container mt-5">
-        <h1>Login Page</h1>
-
-        <form method="POST" action="">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                <label class="form-label" for="email">{{ form.email.label }}</label>
-                {{ form.email(class="form-control") }}
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="password">{{ form.password.label }}</label>
-                {{ form.password(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-primary") }}
-            </div>
-        </form>
+      <h1>Login Page</h1>
+      <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+          <label class="form-label" for="email">{{ form.email.label }}</label>
+          {{ form.email(class="form-control") }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">{{ form.password.label }}</label>
+          {{ form.password(class="form-control") }}
+        </div>
+        <div class="form-group">
+          {{ form.submit(class="btn btn-primary") }}
+        </div>
+      </form>
     </div>
-
+  
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-o7IzB8Fmf3Np1z5xC1zQz5wD7hVojKz2N5S5Ck5S5S5Ttcshz5F5dd5M5/5j5E5I5J5i5E5f5S5y5U5M5F5w5y5O5R5H5u5a5i5S5J5s5/5V5e5b5I5t5L5/5E5V5i5B5I5s5T5V5A5P5P5T5E5I5N5y5M5E5Q=="
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0v8FqFjcJ6pajs/rfdfs3SO+kxp4x65l6B+2nd5PpF5e5W5E5M5F5"
-        crossorigin="anonymous"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-o7IzB8Fmf3Np1z5xC1zQz5wD7hVojKz2N5S5Ck5S5S5Ttcshz5F5dd5M5/5j5E5I5J5i5E5f5S5y5U5M5F5w5y5O5R5H5u5a5i5S5J5s5/5V5e5b5I5t5L5/5E5V5i5B5I5s5T5V5A5P5P5T5E5I5N5y5M5E5Q==" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0v8FqFjcJ6pajs/rfdfs3SO+kxp4x65l6B+2nd5PpF5e5W5E5M5F5" crossorigin="anonymous"></script>        
+  </body>
 </html>

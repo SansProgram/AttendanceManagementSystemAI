@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Attendance Management</title>
-      <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  </head>
-  <body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
       body {
         background-image: url('https://attendancemanagementsystemai.sansprogram.repl.co/static/background.jpg');
@@ -14,7 +12,21 @@
         background-attachment: fixed;
         background-size: 100% 100%;
       }
+      .center-container{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 50px;
+      }
+      .search-bar{
+        padding: 20px;
+      }
+      .upload-button {
+        padding: 20px;
+      }
     </style>
+  </head>
+  <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <a class="navbar-brand" href="#">Attendance System</a>
         <ul class="navbar-nav ml-auto">
@@ -24,31 +36,48 @@
         </ul>
     </nav>
     <div>
-      <div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Student Number</th>
-                    <th>Name</th>
-                    <th>Attendance</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in students %}
-                    <tr>
-                        <td>{{ student.studentnumber }}</td>
-                        <td>{{ student.name }} {{ student.surname }}</td>
-                        <td>{{ student.child.attendance }}%</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+      <div class="student-information">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Student Number</th>
+              <th>Name</th>
+              <th>Attendance</th>
+              <th>Total Days</th>
+              <th>Attended Days</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in students %}
+              <tr>
+                <td>{{ student.studentnumber }}</td>
+                <td>{{ student.name }} {{ student.surname }}</td>
+                <td>{{ student.child.attendance }}%</td>
+                <td>{{ student.child.total_days }}</td>
+                <td>{{ student.child.attended_days }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
-
-        <form method="GET" action="{{ url_for('lecturerview_page') }}">
-            <label for="search">Search by Student Number:</label>
-            <input type="text" name="search" id="search" value="{{ search_query }}">
-            <input type="submit" value="Search">
-        </form>
+        <div class="center-container"
+          <div  class="search-bar">
+            <form method="GET" action="{{ url_for('lecturerview_page') }}">
+              <label for="search">Search by Student Number:</label>
+              <input type="text" name="search" id="search" value="{{ search_query }}">
+              <input type="submit" value="Search">
+            </form>
+            <div class="upload-button">
+              <h4>Upload Attendance</h4>
+              <form method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".txt">
+                <button type="submit">Upload</button>
+              </form>
+            </div>
+            <a href="{{ url_for('reset_attendance') }}">Reset Attendance</a>
+            <a href="{{ url_for('reset_total_days') }}">Reset Total Days</a>
+            <a href="{{ url_for('reset_attended_days') }}">Reset Attended days</a>
+          </div>
+        </div>
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

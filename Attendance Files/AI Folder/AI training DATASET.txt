@@ -1,0 +1,81 @@
+week	Attendance	Weather
+01	33		cloudy
+02	27		extremely hot
+03	21		extremely hot
+04	30		hot
+05	21		extremely hot
+06	35		cloudy
+07	31		hot
+08	30		hot
+09	38		cloudy
+10	37		cloudy
+11	18		rainy
+12	15		rainy
+13	30		cloudy
+14	48		warm
+15	39		cloudy
+16	34		hot
+17	35		hot
+18	29		extremely hot
+19	50		warm
+20	22		rainy		
+21	48		warm
+22	30		hot
+23	37		cloudy
+24	22		rainy
+25	32		hot
+26	36		hot
+27	29		extremely hot
+28	34		cloudy
+29	33		hot
+30	46		warm
+31	41		cloudy
+32	19		rainy
+33	27		extremely hot
+34	29		extremely hot
+35	30		extremely hot
+36	50		warm
+37	23		rainy
+38	28		extremely hot
+39	42		cloudy
+40	25		hot
+41	39		cloudy
+42	21		rainy
+43	45		warm
+44	36		hot
+45	28		extremely hot
+46	33		hot
+47	37		cloudy
+48	34		cloudy
+49	31		hot
+50	27		extremely hot
+51	44		warm
+52	35		hot
+53	49		warm
+54	30		hot
+55	38		cloudy
+56	26		extremely hot
+57	31		hot
+58	30		hot
+59	24		rainy
+60	43		cloudy
+61	29		extremely hot
+62	40		cloudy
+63	35		hot
+64	20		rainy
+65	25		hot
+66	22		rainy
+67	32		hot
+68	36		hot
+69	37		cloudy
+70	41		cloudy
+71	45		warm
+72	33		hot
+73	38		cloudy
+74	26		extremely hot
+75	31		hot
+76	34		cloudy
+77	40		cloudy
+78	27		extremely hot
+79	28		extremely hot
+80	18		rainy

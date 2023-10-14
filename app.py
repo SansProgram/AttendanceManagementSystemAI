@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, flash
+from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -39,6 +39,8 @@ class User(db.Model, UserMixin):
 class Attendance(db.Model, UserMixin):
   id = db.Column(db.Integer, primary_key=True)
   attendance = db.Column(db.Integer)
+  total_days = db.Column(db.Integer, default=0)
+  attended_days = db.Column(db.Integer, default=0)
   user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
   
 
@@ -103,9 +105,8 @@ def signup_page():
     db.session.add(new_user)
     db.session.commit()
     flash('The account has been created!')
-    return redirect("https://attendancemanagementsystemai.sansprogram.repl.co/")
+    return redirect("https://attendancemanagementsystemai.sansprogram.repl.co/signup")
   return render_template('signup.html', form=form)
-
 
 
 # Main Routes
@@ -114,6 +115,102 @@ def signup_page():
 def studentview_page():
   user = current_user
   return render_template('studentview.html', user=user)
+
+
+
+
+def process_attendance_file(file):
+  # Assuming the attendance calculation code is in the same file
+  students = {}
+
+  # Read the content of the uploaded file and process attendance
+  content = file.read().decode('utf-8').splitlines()
+  for line in content:
+      parts = line.strip().split()
+      student_id = parts[0]
+      attendance = list(map(int, parts[1:]))
+
+      if student_id not in students:
+        students[student_id] = {'attended_days': 0, 'total_days': 0}
+
+      students[student_id]['attended_days'] += sum(attendance)
+      students[student_id]['total_days'] += len(attendance)
+
+  # Save the updated attendance data to the database or use as needed
+  for student_id, data in students.items():
+    user = User.query.filter_by(studentnumber=student_id).first()
+    if user:
+      user_attendance = Attendance.query.filter_by(user_id=user.id).first()
+      if user_attendance:
+        user_attendance.total_days += data['total_days']  # Increment total days by the uploaded value
+        user_attendance.attended_days += data['attended_days']  # Update attended days
+        user_attendance.attendance = (user_attendance.attended_days / user_attendance.total_days) * 100
+      else:
+        # If the attendance record doesn't exist, create a new one
+        new_attendance = Attendance(
+          attendance=(data['attended_days'] / data['total_days']) * 100,  # Initial value, assuming 5 total days
+          total_days=data['total_days'],
+          attended_days=data['attended_days']
+        )
+        user.child = new_attendance
+
+  db.session.commit()
+
+
+@app.route('/reset_attendance', methods=['GET', 'POST'])
+@login_required
+def reset_attendance():
+  if current_user.role == 'T':
+    # Only teachers can reset attendance
+    all_users = User.query.all()
+
+    for user in all_users:
+      user_attendance = Attendance.query.filter_by(user_id=user.id).first()
+      if user_attendance:
+        # Reset the attendance to 0
+        user_attendance.attendance = 0
+
+  db.session.commit()
+  flash('Attendance values reset successfully!')
+
+  return redirect(url_for('lecturerview_page'))
+
+@app.route('/reset_total_days', methods=['GET', 'POST'])
+@login_required
+def reset_total_days():
+  if current_user.role == 'T':
+    # Only teachers can reset attendance
+    all_users = User.query.all()
+
+    for user in all_users:
+      user_attendance = Attendance.query.filter_by(user_id=user.id).first()
+      if user_attendance:
+        # Reset the attendance to 0
+        user_attendance.total_days = 0
+
+  db.session.commit()
+  flash('Attendance values reset successfully!')
+
+  return redirect(url_for('lecturerview_page'))
+
+@app.route('/reset_attended_days', methods=['GET', 'POST'])
+@login_required
+def reset_attended_days():
+  if current_user.role == 'T':
+    # Only teachers can reset attendance
+    all_users = User.query.all()
+
+    for user in all_users:
+      user_attendance = Attendance.query.filter_by(user_id=user.id).first()
+      if user_attendance:
+        # Reset the attendance to 0
+        user_attendance.attended_days = 0
+
+  db.session.commit()
+  flash('Attendance values reset successfully!')
+
+  return redirect(url_for('lecturerview_page'))
+
 
 @app.route('/lecturerview', methods=['GET', 'POST'])
 @login_required
@@ -127,10 +224,22 @@ def lecturerview_page():
     if search_query:
       students = [student for student in students if search_query in student.studentnumber]
 
+    # Handle file upload
+    if request.method == 'POST':
+      file = request.files['file']
+      if file:
+        # Save the file to a temporary location or process it directly
+        process_attendance_file(file)
+        flash('Attendance file uploaded successfully!')
+      else:
+        flash('No file selected!')
+
     return render_template('lecturerview.html', students=students, search_query=search_query)
   else:
     # Redirect non-teachers to a different page or show an error message
     return redirect('/error_page')
+
+
 
 @app.route('/error_page')
 def error_page():
@@ -151,10 +260,10 @@ def module_page():
 @app.route('/studanalytics', methods=['GET', 'POST'])
 @login_required
 def studanalytics():
-    user = current_user
-    current_user_attendance = current_user.child
-    percentage = current_user_attendance.attendance if current_user_attendance else 'N/A'
-    return render_template('studanalytics.html', percentage=percentage, user=user)
+  user = current_user
+  current_user_attendance = current_user.child
+  percentage = current_user_attendance.attendance if current_user_attendance else 'N/A'
+  return render_template('studanalytics.html', percentage=percentage, user=user)
 
 # logout user
 @app.route('/logout', methods=['GET', 'POST'])
