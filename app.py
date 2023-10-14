@@ -5,7 +5,51 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
+from joblib import load
 
+import pandas as pd  # Import pandas if not already imported
+import random  # Import random if not already imported
+
+# Load the saved model
+loaded_model = load('linear_regression_model.joblib')
+
+# Example: Assuming 'new_data' is a DataFrame with a 'Weather' column
+def weather_select():
+  random_integer = random.randint(1,5)
+  if random_integer == 1:
+    new_data = pd.DataFrame({'Weather': ['rainy', 'extremely hot', 'warm', 'hot', 'cloudy']})
+    weather = "Rainy"
+    return new_data, weather
+  elif random_integer == 2:
+    new_data = pd.DataFrame({'Weather': ['extremely hot', 'warm', 'hot', 'cloudy', 'rainy']})
+    weather = "Extremely Hot"
+    return new_data, weather
+  elif random_integer == 3:
+    new_data = pd.DataFrame({'Weather': ['warm', 'hot', 'cloudy', 'rainy', 'extremely hot']})
+    weather = "Warm"
+    return new_data, weather
+  elif random_integer == 4:
+    new_data = pd.DataFrame({'Weather': ['hot', 'cloudy', 'rainy', 'extremely hot', 'warm']})
+    weather = "Hot"
+    return new_data, weather
+  elif random_integer == 5:
+    new_data = pd.DataFrame({'Weather': ['cloudy', 'rainy', 'extremely hot', 'warm', 'hot']})
+    weather = "Cloudy"
+    return new_data, weather
+
+new_data, weather = weather_select()
+
+# Convert categorical variables using one-hot encoding
+new_data_encoded = pd.get_dummies(new_data, columns=['Weather'], prefix='Weather')
+
+# Make predictions
+new_predictions = loaded_model.predict(new_data_encoded)
+
+# Print predictions
+weather = weather
+print(weather)
+prediction = f'Predicted Attendance: {new_predictions[0]}'
+print(prediction)
 
 app = Flask(__name__)
 db = SQLAlchemy()
@@ -35,14 +79,14 @@ class User(db.Model, UserMixin):
   password = db.Column(db.String(80), nullable=False)
   role = db.Column(db.String(1), nullable=False)
   child = db.relationship('Attendance', backref='parent', uselist=False)
-  
+
 class Attendance(db.Model, UserMixin):
   id = db.Column(db.Integer, primary_key=True)
   attendance = db.Column(db.Integer)
   total_days = db.Column(db.Integer, default=0)
   attended_days = db.Column(db.Integer, default=0)
   user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-  
+
 
 
 # Database Content
@@ -82,7 +126,7 @@ def login_page():
         if bcrypt.check_password_hash(user.password, form.password.data):
           login_user(user)
           return redirect("https://attendancemanagementsystemai.sansprogram.repl.co/studentview")
-        
+
   return render_template('login.html', form=form)
 
 
@@ -97,9 +141,9 @@ def signup_page():
   if form.validate_on_submit():
     hashed_password = bcrypt.generate_password_hash(form.password.data)
     new_user = User(email=form.email.data, studentnumber=form.studentnumber.data, name=form.name.data, surname=form.surname.data, password=hashed_password)
-    
+
     new_user.role = 'S' if len(form.email.data)==23 else 'T'
-    
+
     new_attendance = Attendance(attendance=form.attendance.data)
     new_user.child = new_attendance
     db.session.add(new_user)
@@ -215,6 +259,8 @@ def reset_attended_days():
 @app.route('/lecturerview', methods=['GET', 'POST'])
 @login_required
 def lecturerview_page():
+  global weather
+  global prediction
   if current_user.role == 'T':
     # Only teachers can access this page
     students = User.query.filter_by(role='S').all()
@@ -234,7 +280,7 @@ def lecturerview_page():
       else:
         flash('No file selected!')
 
-    return render_template('lecturerview.html', students=students, search_query=search_query)
+    return render_template('lecturerview.html', students=students, search_query=search_query, weather=weather, prediction=prediction)
   else:
     # Redirect non-teachers to a different page or show an error message
     return redirect('/error_page')

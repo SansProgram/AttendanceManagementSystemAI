@@ -24,6 +24,9 @@
       .upload-button {
         padding: 20px;
       }
+      .predicted-attendance{
+        padding: 50px
+      }
     </style>
   </head>
   <body>
@@ -43,8 +46,8 @@
               <th>Student Number</th>
               <th>Name</th>
               <th>Attendance</th>
-              <th>Total Days</th>
               <th>Attended Days</th>
+              <th>Total Days</th>
             </tr>
           </thead>
           <tbody>
@@ -53,12 +56,17 @@
                 <td>{{ student.studentnumber }}</td>
                 <td>{{ student.name }} {{ student.surname }}</td>
                 <td>{{ student.child.attendance }}%</td>
-                <td>{{ student.child.total_days }}</td>
                 <td>{{ student.child.attended_days }}</td>
+                <td>{{ student.child.total_days }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
+        <div class="predicted-attendance">
+          <h2>Predicted Attendance and Weather Type</h2>
+          <p>Weather Type: {{ weather }}</p>
+          <p>{{ prediction }}</p>
+        </div>
         <div class="center-container"
           <div  class="search-bar">
             <form method="GET" action="{{ url_for('lecturerview_page') }}">
