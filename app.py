@@ -1,3 +1,4 @@
+# IMPORTS
 from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
@@ -6,51 +7,10 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
 from joblib import load
+import pandas as pd
+import random
 
-import pandas as pd  # Import pandas if not already imported
-import random  # Import random if not already imported
-
-# Load the saved model
-loaded_model = load('linear_regression_model.joblib')
-
-# Example: Assuming 'new_data' is a DataFrame with a 'Weather' column
-def weather_select():
-  random_integer = random.randint(1,5)
-  if random_integer == 1:
-    new_data = pd.DataFrame({'Weather': ['rainy', 'extremely hot', 'warm', 'hot', 'cloudy']})
-    weather = "Rainy"
-    return new_data, weather
-  elif random_integer == 2:
-    new_data = pd.DataFrame({'Weather': ['extremely hot', 'warm', 'hot', 'cloudy', 'rainy']})
-    weather = "Extremely Hot"
-    return new_data, weather
-  elif random_integer == 3:
-    new_data = pd.DataFrame({'Weather': ['warm', 'hot', 'cloudy', 'rainy', 'extremely hot']})
-    weather = "Warm"
-    return new_data, weather
-  elif random_integer == 4:
-    new_data = pd.DataFrame({'Weather': ['hot', 'cloudy', 'rainy', 'extremely hot', 'warm']})
-    weather = "Hot"
-    return new_data, weather
-  elif random_integer == 5:
-    new_data = pd.DataFrame({'Weather': ['cloudy', 'rainy', 'extremely hot', 'warm', 'hot']})
-    weather = "Cloudy"
-    return new_data, weather
-
-new_data, weather = weather_select()
-
-# Convert categorical variables using one-hot encoding
-new_data_encoded = pd.get_dummies(new_data, columns=['Weather'], prefix='Weather')
-
-# Make predictions
-new_predictions = loaded_model.predict(new_data_encoded)
-
-# Print predictions
-weather = weather
-print(weather)
-prediction = f'Predicted Attendance: {new_predictions[0]}'
-print(prediction)
-
+# CREATION OF FLASK APP + CONFIGURATION
 app = Flask(__name__)
 db = SQLAlchemy()
 bcrypt = Bcrypt(app)
@@ -69,7 +29,7 @@ def load_user(user_id):
   return User.query.get(int(user_id))
 
 
-# Databas Table
+# CREATION OF DATABASE MODELS
 class User(db.Model, UserMixin):
   id = db.Column(db.Integer, primary_key=True)
   email = db.Column(db.String(20), nullable=False, unique=True)
@@ -89,7 +49,7 @@ class Attendance(db.Model, UserMixin):
 
 
 
-# Database Content
+# DATABASE CONTENTS FORMS
 class RegisterForm(FlaskForm):
   email = StringField(validators=[InputRequired(), Length(min=4, max=30)], render_kw={"placeholder": "email"})
   studentnumber = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Student/staff Number"})
@@ -110,7 +70,8 @@ class LoginForm(FlaskForm):
   submit = SubmitField("Login")
 
 
-# Login System
+
+# LOGIN SYSTEM
 @app.route('/', methods=['GET', 'POST'])
 def login_page():
   form = LoginForm()
@@ -131,9 +92,7 @@ def login_page():
 
 
 
-
-
-# Registration System
+# REGISTRATION SYSTEM
 @app.route('/signup', methods=['GET', 'POST'])
 def signup_page():
   form = RegisterForm()
@@ -153,16 +112,8 @@ def signup_page():
   return render_template('signup.html', form=form)
 
 
-# Main Routes
-@app.route('/studentview', methods=['GET', 'POST'])
-@login_required
-def studentview_page():
-  user = current_user
-  return render_template('studentview.html', user=user)
 
-
-
-
+# FILE HANDLING
 def process_attendance_file(file):
   # Assuming the attendance calculation code is in the same file
   students = {}
@@ -201,6 +152,119 @@ def process_attendance_file(file):
   db.session.commit()
 
 
+
+# STUDENT PAGE
+@app.route('/studentview', methods=['GET', 'POST'])
+@login_required
+def studentview_page():
+  user = current_user
+  return render_template('studentview.html', user=user)
+
+# LECTURER PAGE
+@app.route('/lecturerview', methods=['GET', 'POST'])
+@login_required
+def lecturerview_page():
+  # ML MODEL CODE
+  loaded_model = load('linear_regression_model.joblib')
+
+  # METHOD IN PLACE OF AN API THAT WOULD BE FETCHING NEXT WEEKS WEATHER FORECAST FROM A WEATHER SITE
+  def weather_select():
+    random_integer = random.randint(1,5)
+    if random_integer == 1:
+      new_data = pd.DataFrame({'Weather': ['rainy', 'extremely hot', 'warm', 'hot', 'cloudy']})
+      weather = "Rainy"
+      return new_data, weather
+    elif random_integer == 2:
+      new_data = pd.DataFrame({'Weather': ['extremely hot', 'warm', 'hot', 'cloudy', 'rainy']})
+      weather = "Extremely Hot"
+      return new_data, weather
+    elif random_integer == 3:
+      new_data = pd.DataFrame({'Weather': ['warm', 'hot', 'cloudy', 'rainy', 'extremely hot']})
+      weather = "Warm"
+      return new_data, weather
+    elif random_integer == 4:
+      new_data = pd.DataFrame({'Weather': ['hot', 'cloudy', 'rainy', 'extremely hot', 'warm']})
+      weather = "Hot"
+      return new_data, weather
+    elif random_integer == 5:
+      new_data = pd.DataFrame({'Weather': ['cloudy', 'rainy', 'extremely hot', 'warm', 'hot']})
+      weather = "Cloudy"
+      return new_data, weather
+
+  new_data, weather = weather_select()
+  
+  # Convert categorical variables using one-hot encoding
+  new_data_encoded = pd.get_dummies(new_data, columns=['Weather'], prefix='Weather')
+
+  # Make predictions
+  new_predictions = loaded_model.predict(new_data_encoded)
+
+  # Print predictions
+  prediction = f'Predicted Attendance: {new_predictions[0]}'
+  prediction=prediction[0:24]
+
+  # USER LOGGED IN LOGIC + FILE UPLOAD LOGIC
+  if current_user.role == 'T':
+    # Only teachers can access this page
+    students = User.query.filter_by(role='S').all()
+
+    # Search functionality
+    search_query = request.args.get('search', '')
+    if search_query:
+      students = [student for student in students if search_query in student.studentnumber]
+
+    # Handle file upload
+    if request.method == 'POST':
+      file = request.files['file']
+      if file:
+        # Save the file to a temporary location or process it directly
+        process_attendance_file(file)
+        flash('Attendance file uploaded successfully!')
+        # Redirect to the same page after processing the file
+        return redirect(url_for('lecturerview_page'))
+      else:
+        flash('No file selected!')
+
+    return render_template('lecturerview.html', students=students, search_query=search_query, weather=weather, prediction=prediction)
+  else:
+    # Redirect non-teachers to a different page or show an error message
+    return redirect('/error_page')
+
+# PROFILE PAGE
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+  user = current_user
+  return render_template('profile.html', user=user)
+
+# ERROR PAGE
+@app.route('/error_page')
+def error_page():
+  return render_template('error_page.html')
+
+# MODULE PAGE
+@app.route('/module_page')
+def module_page():
+  return render_template('module_page.html')
+
+# STUDENT ANALYTICS
+@app.route('/studanalytics', methods=['GET', 'POST'])
+@login_required
+def studanalytics():
+  user = current_user
+  current_user_attendance = current_user.child
+  percentage = current_user_attendance.attendance if current_user_attendance else 'N/A'
+  return render_template('studanalytics.html', percentage=percentage, user=user)
+
+# LOGOUT USER
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+  logout_user()
+  return redirect("https://attendancemanagementsystemai.sansprogram.repl.co/")
+
+
+# RESET DATA FOR DEMONSTRATION
 @app.route('/reset_attendance', methods=['GET', 'POST'])
 @login_required
 def reset_attendance():
@@ -256,68 +320,6 @@ def reset_attended_days():
   return redirect(url_for('lecturerview_page'))
 
 
-@app.route('/lecturerview', methods=['GET', 'POST'])
-@login_required
-def lecturerview_page():
-  global weather
-  global prediction
-  if current_user.role == 'T':
-    # Only teachers can access this page
-    students = User.query.filter_by(role='S').all()
-
-    # Search functionality
-    search_query = request.args.get('search', '')
-    if search_query:
-      students = [student for student in students if search_query in student.studentnumber]
-
-    # Handle file upload
-    if request.method == 'POST':
-      file = request.files['file']
-      if file:
-        # Save the file to a temporary location or process it directly
-        process_attendance_file(file)
-        flash('Attendance file uploaded successfully!')
-      else:
-        flash('No file selected!')
-
-    return render_template('lecturerview.html', students=students, search_query=search_query, weather=weather, prediction=prediction)
-  else:
-    # Redirect non-teachers to a different page or show an error message
-    return redirect('/error_page')
-
-
-
-@app.route('/error_page')
-def error_page():
-  return render_template('error_page.html')
-
-@app.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-  user = current_user
-  return render_template('profile.html', user=user)
-
-@app.route('/module_page')
-def module_page():
-  return render_template('module_page.html')
-
-
-# This must get the value from the database attendance.db
-@app.route('/studanalytics', methods=['GET', 'POST'])
-@login_required
-def studanalytics():
-  user = current_user
-  current_user_attendance = current_user.child
-  percentage = current_user_attendance.attendance if current_user_attendance else 'N/A'
-  return render_template('studanalytics.html', percentage=percentage, user=user)
-
-# logout user
-@app.route('/logout', methods=['GET', 'POST'])
-@login_required
-def logout():
-  logout_user()
-  return redirect("https://attendancemanagementsystemai.sansprogram.repl.co/")
-
-# Main Function to run
+# MAIN FUNCTION TO RUN APP
 if __name__ == "__main__":
   app.run(host='0.0.0.0', debug=True)
